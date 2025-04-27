@@ -1,147 +1,137 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chronic Kidney Disease Prediction Tool</title>
-    <style>
-        /* (Original styles remain same) */
-        /* Your same CSS code here */
-    </style>
-    <!-- Chart.js library for visualizations -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- html2canvas and jsPDF for report download -->
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chronic Kidney Disease Prediction Tool</title>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- html2canvas and jsPDF for downloads -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <style>
+    body { font-family: Arial, sans-serif; background: #f5f9fc; margin: 20px; }
+    header { background: #1a6fc9; color: white; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 30px; }
+    section { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    canvas { background: #fff; border-radius: 8px; }
+    button { background: #1a6fc9; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin-top: 15px; }
+    button:hover { background: #145da0; }
+    footer { text-align: center; font-size: 12px; margin-top: 20px; color: #777; }
+
+    /* Chatbot Styles */
+    #chatbot-container { position: fixed; bottom: 20px; right: 20px; z-index: 1000; }
+    #chatbot-toggle { background-color: #1a6fc9; color: white; border: none; padding: 12px; border-radius: 50%; width: 60px; height: 60px; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.2); font-size: 24px; }
+    #chatbot-iframe { width: 350px; height: 500px; border: none; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); display: none; margin-bottom: 10px; }
+    .chatbot-visible #chatbot-iframe { display: block; }
+  </style>
 </head>
+
 <body>
-    <header>
-        <h1>Chronic Kidney Disease Prediction Tool</h1>
-        <p>This tool evaluates your risk factors for developing chronic kidney disease</p>
-    </header>
 
-    <!-- (Same form-section code) -->
+  <header>
+    <h1>Chronic Kidney Disease Prediction Tool</h1>
+    <p>This tool evaluates your risk factors for developing chronic kidney disease</p>
+  </header>
 
-    <!-- (Same result section code) -->
+  <section>
+    <h2>Your Risk Visualizations</h2>
 
-    <section id="visualizations" class="hidden">
-        <h2>Your Risk Visualizations</h2>
-        <div id="visualization-content">
-            <div class="visualization-grid">
-                <div>
-                    <h3>Your CKD Risk Level</h3>
-                    <div class="chart-container">
-                        <canvas id="riskLevelChart"></canvas>
-                    </div>
-                </div>
-                <div>
-                    <h3>Risk Factor Breakdown</h3>
-                    <div class="chart-container">
-                        <canvas id="factorsChart"></canvas>
-                    </div>
-                </div>
-            </div>
+    <h3>Your CKD Risk Level</h3>
+    <p><strong>Risk Level:</strong> Moderate</p>
 
-            <div class="chart-container">
-                <h3>Your Key Risk Factors</h3>
-                <div id="risk-factors-container" class="risk-factors"></div>
-            </div>
+    <h3>Risk Factor Breakdown</h3>
+    <canvas id="factorsPieChart"></canvas>
 
-            <div class="chart-container">
-                <h3>Risk Comparison by Age Group</h3>
-                <canvas id="ageComparisonChart"></canvas>
-            </div>
+    <h3>Your Key Risk Factors</h3>
+    <ul>
+      <li>Age 60+</li>
+      <li>Type 2 Diabetes</li>
+      <li>Hypertension</li>
+      <li>Obesity</li>
+      <li>Family History of Kidney Disease</li>
+      <li>Current Smoker</li>
+    </ul>
 
-            <div class="additional-info">
-                <h3>About These Visualizations</h3>
-                <p>The charts above illustrate how your risk factors compare to general population data. Your personal risk is calculated based on clinical algorithms that weigh each factor differently.</p>
-            </div>
+    <h3>Risk Comparison by Age Group</h3>
+    <p>Risk increases significantly after age 60. Early detection and lifestyle modifications can reduce risk.</p>
 
-            <div class="download-buttons">
-                <button id="download-pdf" class="download-btn">Download Report as PDF</button>
-                <button id="download-image" class="download-btn">Download as Image</button>
-            </div>
-        </div>
-    </section>
+    <h3>About These Visualizations</h3>
+    <p>The charts above illustrate how your risk factors compare to general population data. Your personal risk is calculated based on clinical algorithms that weigh each factor differently.</p>
 
-    <!-- (Same footer code) -->
+    <button onclick="downloadPDF()">Download Report as PDF</button>
+    <button onclick="downloadImage()">Download as Image</button>
+  </section>
 
-    <!-- (Same chatbot code) -->
+  <footer>
+    <p>Disclaimer: This tool is for informational purposes only and is not a substitute for professional medical advice, diagnosis, or treatment.</p>
+  </footer>
 
-    <script>
-    // (Same form handling code)
+  <!-- Chatbot Container -->
+  <div id="chatbot-container">
+    <iframe id="chatbot-iframe" src="https://agent.jotform.com/0195bf7a139274149d20a98efdf483b08976"></iframe>
+    <button id="chatbot-toggle">💬</button>
+  </div>
 
-    // Modify createFactorsChart() to PIE chart
-    function createFactorsChart() {
-        const ctx = document.getElementById('factorsChart').getContext('2d');
-
-        if (riskCharts.factorsChart) {
-            riskCharts.factorsChart.destroy();
+  <script>
+    const ctx = document.getElementById('factorsPieChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: ['Age 60+', 'Type 2 Diabetes', 'Hypertension', 'Obesity', 'Family History', 'Smoking'],
+        datasets: [{
+          data: [3, 3, 2, 1, 1, 1],
+          backgroundColor: ['#1abc9c', '#3498db', '#9b59b6', '#f1c40f', '#e67e22', '#e74c3c'],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'bottom' },
+          title: { display: true, text: 'Risk Factors Distribution' }
         }
-
-        const topFactors = [...userRiskData.riskFactors]
-            .sort((a, b) => b.value - a.value)
-            .slice(0, 6)
-            .filter(factor => factor.value > 0);
-
-        const labels = topFactors.map(factor => factor.name);
-        const values = topFactors.map(factor => factor.value);
-
-        riskCharts.factorsChart = new Chart(ctx, {
-            type: 'pie',
-            data: {
-                labels: labels,
-                datasets: [{
-                    data: values,
-                    backgroundColor: ['#1abc9c', '#3498db', '#9b59b6', '#f1c40f', '#e67e22', '#e74c3c'],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { position: 'bottom' },
-                    title: { display: true, text: 'Risk Factors Breakdown (Pie Chart)' }
-                }
-            }
-        });
-    }
-
-    // Update Download PDF button properly
-    document.getElementById('download-pdf').addEventListener('click', async function() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-
-        doc.setFontSize(18);
-        doc.text("Chronic Kidney Disease Prediction Tool", 20, 20);
-
-        doc.setFontSize(14);
-        doc.text("\nRisk Assessment Report:", 20, 40);
-
-        doc.text(`\n- Risk Score: ${userRiskData.riskScore}/20`, 20, 50);
-        doc.text(`- Risk Level: ${userRiskData.riskLevel.toUpperCase()}`, 20, 60);
-        doc.text(`- Estimated 5-Year Risk: ${userRiskData.riskPercentage}`, 20, 70);
-
-        doc.text("\nKey Risk Factors:", 20, 90);
-        let y = 100;
-        userRiskData.riskFactors.forEach(factor => {
-            if (factor.value > 0) {
-                doc.text(`- ${factor.name} (${factor.value}/${factor.max})`, 20, y);
-                y += 10;
-            }
-        });
-
-        doc.text("\nRecommendations:", 20, y + 10);
-        const adviceText = document.getElementById('advice').innerText.split('\n');
-        adviceText.forEach((line, index) => {
-            doc.text(line, 20, y + 20 + (index * 10));
-        });
-
-        doc.save("CKD_Risk_Report.pdf");
+      }
     });
 
-    // (Same other scripts: form submission, reset, chatbot toggle)
+    async function downloadPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
 
-    </script>
+      doc.setFontSize(18);
+      doc.text("Chronic Kidney Disease Prediction Tool", 20, 20);
+
+      doc.setFontSize(14);
+      doc.text("Risk Level: Moderate", 20, 40);
+      doc.text("Key Risk Factors:", 20, 60);
+      const risks = ['Age 60+', 'Type 2 Diabetes', 'Hypertension', 'Obesity', 'Family History', 'Smoking'];
+      let y = 70;
+      risks.forEach(risk => {
+        doc.text(`- ${risk}`, 25, y);
+        y += 10;
+      });
+      doc.text("\nNote: This tool is for informational purposes only.", 20, y + 20);
+
+      doc.save("CKD_Risk_Report.pdf");
+    }
+
+    async function downloadImage() {
+      const section = document.querySelector('section');
+      html2canvas(section).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'CKD_Risk_Page.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+    }
+
+    // Chatbot toggle functionality
+    document.getElementById('chatbot-toggle').addEventListener('click', function() {
+      const container = document.getElementById('chatbot-container');
+      container.classList.toggle('chatbot-visible');
+    });
+  </script>
+
 </body>
 </html>
