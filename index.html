@@ -696,6 +696,9 @@
             const values = topFactors.map(factor => factor.value);
             const colors = ['#1a6fc9', '#27ae60', '#f39c12', '#e74c3c', '#9b59b6', '#3498db'];
             
+            // Calculate total of top factors for percentage calculation
+            const total = values.reduce((sum, value) => sum + value, 0);
+            
             riskCharts.factorsChart = new Chart(ctx, {
                 type: 'pie',
                 data: {
@@ -717,13 +720,57 @@
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
-                                    const factor = topFactors[context.dataIndex];
-                                    return `${context.label}: ${factor.value}/${factor.max} points`;
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: ${value} points (${percentage}%)`;
                                 }
+                            }
+                        },
+                        legend: {
+                            position: 'right',
+                        },
+                        datalabels: {
+                            formatter: (value, context) => {
+                                const percentage = Math.round((value / total) * 100);
+                                return `${percentage}%`;
+                            },
+                            color: '#fff',
+                            font: {
+                                weight: 'bold'
                             }
                         }
                     }
-                }
+                },
+                plugins: [{
+                    id: 'datalabels',
+                    beforeDraw: function(chart) {
+                        const ctx = chart.ctx;
+                        const width = chart.width;
+                        const height = chart.height;
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.font = 'bold 12px Arial';
+                        
+                        chart.data.datasets.forEach((dataset, i) => {
+                            const meta = chart.getDatasetMeta(i);
+                            meta.data.forEach((element, index) => {
+                                const data = dataset.data[index];
+                                const percentage = Math.round((data / total) * 100);
+                                const startAngle = element.startAngle;
+                                const endAngle = element.endAngle;
+                                const angle = startAngle + (endAngle - startAngle) / 2;
+                                
+                                const radius = element.outerRadius * 0.75;
+                                const x = Math.cos(angle) * radius + element.x;
+                                const y = Math.sin(angle) * radius + element.y;
+                                
+                                ctx.fillStyle = '#fff';
+                                ctx.fillText(percentage + '%', x, y);
+                            });
+                        });
+                    }
+                }]
             });
         }
         
