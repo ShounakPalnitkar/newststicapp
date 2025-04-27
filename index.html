@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chronic Kidney Disease Prediction Tool</title>
+    <style>
+        /* (Original styles remain same) */
+        /* Your same CSS code here */
+    </style>
+    <!-- Chart.js library for visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- html2canvas and jsPDF for report download -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Chronic Kidney Disease Prediction Tool</h1>
+        <p>This tool evaluates your risk factors for developing chronic kidney disease</p>
+    </header>
+
+    <!-- (Same form-section code) -->
+
+    <!-- (Same result section code) -->
+
+    <section id="visualizations" class="hidden">
+        <h2>Your Risk Visualizations</h2>
+        <div id="visualization-content">
+            <div class="visualization-grid">
+                <div>
+                    <h3>Your CKD Risk Level</h3>
+                    <div class="chart-container">
+                        <canvas id="riskLevelChart"></canvas>
+                    </div>
+                </div>
+                <div>
+                    <h3>Risk Factor Breakdown</h3>
+                    <div class="chart-container">
+                        <canvas id="factorsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h3>Your Key Risk Factors</h3>
+                <div id="risk-factors-container" class="risk-factors"></div>
+            </div>
+
+            <div class="chart-container">
+                <h3>Risk Comparison by Age Group</h3>
+                <canvas id="ageComparisonChart"></canvas>
+            </div>
+
+            <div class="additional-info">
+                <h3>About These Visualizations</h3>
+                <p>The charts above illustrate how your risk factors compare to general population data. Your personal risk is calculated based on clinical algorithms that weigh each factor differently.</p>
+            </div>
+
+            <div class="download-buttons">
+                <button id="download-pdf" class="download-btn">Download Report as PDF</button>
+                <button id="download-image" class="download-btn">Download as Image</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- (Same footer code) -->
+
+    <!-- (Same chatbot code) -->
+
+    <script>
+    // (Same form handling code)
+
+    // Modify createFactorsChart() to PIE chart
+    function createFactorsChart() {
+        const ctx = document.getElementById('factorsChart').getContext('2d');
+
+        if (riskCharts.factorsChart) {
+            riskCharts.factorsChart.destroy();
+        }
+
+        const topFactors = [...userRiskData.riskFactors]
+            .sort((a, b) => b.value - a.value)
+            .slice(0, 6)
+            .filter(factor => factor.value > 0);
+
+        const labels = topFactors.map(factor => factor.name);
+        const values = topFactors.map(factor => factor.value);
+
+        riskCharts.factorsChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: values,
+                    backgroundColor: ['#1abc9c', '#3498db', '#9b59b6', '#f1c40f', '#e67e22', '#e74c3c'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom' },
+                    title: { display: true, text: 'Risk Factors Breakdown (Pie Chart)' }
+                }
+            }
+        });
+    }
+
+    // Update Download PDF button properly
+    document.getElementById('download-pdf').addEventListener('click', async function() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        doc.setFontSize(18);
+        doc.text("Chronic Kidney Disease Prediction Tool", 20, 20);
+
+        doc.setFontSize(14);
+        doc.text("\nRisk Assessment Report:", 20, 40);
+
+        doc.text(`\n- Risk Score: ${userRiskData.riskScore}/20`, 20, 50);
+        doc.text(`- Risk Level: ${userRiskData.riskLevel.toUpperCase()}`, 20, 60);
+        doc.text(`- Estimated 5-Year Risk: ${userRiskData.riskPercentage}`, 20, 70);
+
+        doc.text("\nKey Risk Factors:", 20, 90);
+        let y = 100;
+        userRiskData.riskFactors.forEach(factor => {
+            if (factor.value > 0) {
+                doc.text(`- ${factor.name} (${factor.value}/${factor.max})`, 20, y);
+                y += 10;
+            }
+        });
+
+        doc.text("\nRecommendations:", 20, y + 10);
+        const adviceText = document.getElementById('advice').innerText.split('\n');
+        adviceText.forEach((line, index) => {
+            doc.text(line, 20, y + 20 + (index * 10));
+        });
+
+        doc.save("CKD_Risk_Report.pdf");
+    });
+
+    // (Same other scripts: form submission, reset, chatbot toggle)
+
+    </script>
+</body>
+</html>
